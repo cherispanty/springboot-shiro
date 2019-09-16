@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.inlighting.dao.UserDao">
+    <resultMap id="UserResultMap" type="org.inlighting.bean.UserDO">
+        <id column="user_id" property="userId" />
+        <result column="username" property="username" />
+        <result column="name" property="name" />
+        <result column="password" property="password"></result>
+        <result column="dept_id" property="deptId"></result>
+        <result column="dept_name" property="deptName"></result>
+        <result column="email" property="email"></result>
+        <result column="mobile" property="mobile"></result>
+        <result column="status" property="status"></result>
+        <result column="user_id_create" property="userIdCreate"></result>
+        <result column="gmt_create" property="gmtCreate"></result>
+        <result column="gmt_modified" property="gmtModified"></result>
+        <result column="sex" property="sex"></result>
+        <result column="birth" property="birth"></result>
+        <result column="pic_id" property="picId"/>
+        <result column="live_address" property="liveAddress"/>
+        <result column="hobby" property="hobby"/>
+        <result column="province" property="province"/>
+        <result column="city" property="city"/>
+        <result column="district" property="district"/>
+
+        <collection property="roleDOList" ofType="org.inlighting.bean.RoleDO">
+            <id column="role_id" property="roleId"></id>
+            <result column="role_name" property="roleName"></result>
+            <result column="role_sign" property="roleSign"></result>
+            <result column="remark" property="remark"></result>
+            <result column="user_id_create" property="userIdCreate"></result>
+            <result column="gmt_create" property="gmtCreate"></result>
+            <result column="gmt_modified" property="gmtModified"></result>
+            <collection property="menuDOList" ofType="org.inlighting.bean.MenuDO">
+                <id column="menu_id" property="menuId"></id>
+                <result column="parent_id" property="parentId"></result>
+                <result column="m_name" property="name"></result>
+                <result column="url" property="url"></result>
+                <result column="perms" property="perms"></result>
+                <result column="type" property="type"></result>
+                <result column="icon" property="icon"></result>
+                <result column="order_num" property="orderNum"></result>
+                <result column="gmt_create" property="gmtCreate"></result>
+                <result column="gmt_modified" property="gmtModified"></result>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="queryByUsername" resultMap="UserResultMap">
+        select su.*,sr.*,sm.*,sm.name m_name
+        from sys_user su
+        left join sys_user_role sur on sur.user_id = su.user_id
+        left join sys_role sr on sr.role_id = sur.role_id
+        left join sys_role_menu srm on srm.role_id = sur.role_id
+        left join sys_menu sm on srm.menu_id = sm.menu_id
+        where su.username = #{username}
+
+    </select>
+</mapper>
