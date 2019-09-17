@@ -6,22 +6,18 @@ import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.*;
 import org.apache.shiro.subject.Subject;
-import org.inlighting.bean.ResponseBean;
 
 import org.inlighting.bean.UserDO;
-import org.inlighting.database.UserBean;
 import org.inlighting.exception.UnauthorizedException;
 import org.inlighting.service.UserService;
-import org.inlighting.util.Constants;
-import org.inlighting.util.JWTUtil;
-import org.inlighting.util.RedisUtil;
-import org.inlighting.util.ShiroUtils;
+import org.inlighting.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class WebController {
@@ -39,28 +35,30 @@ public class WebController {
 
 
     @PostMapping("/login")
-    public ResponseBean login(@RequestParam("username") String username,
-                              @RequestParam("password") String password) {
+    public R login(@RequestParam("username") String username,
+                   @RequestParam("password") String password) {
         //密码加密生成 todo
         UserDO userInfo = userService.getByUsername(username);
         if (userInfo.getPassword().equals(password)) {
             String token = JWTUtil.sign(username, password);
             //将token存入redis，设置过期时间为1分钟
             RedisUtil.set(token,userInfo,5 * 60);
-            return new ResponseBean(200, "Login success",token);
+            Map<String,Object> data = new HashMap<>();
+            data.put("token",token);
+            return R.ok(data);
         } else {
             throw new UnauthorizedException();
         }
     }
 
     @GetMapping("/test")
-    public ResponseBean test(){
-        return new ResponseBean(200,"test success",null);
+    public R test(){
+        return R.ok();
     }
 
     @GetMapping("/test2")
-    public ResponseBean test2(){
-        return new ResponseBean(200,"you cann't attach me!",null);
+    public R test2(){
+        return R.ok();
     }
 
     /**
@@ -68,65 +66,60 @@ public class WebController {
      * @return
      */
     @GetMapping("/getUserInfo")
-    public ResponseBean getUserInfo() {
-        UserDO userInfo = null;
-        try {
-            userInfo = ShiroUtils.getUserInfo();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        ResponseBean res = new ResponseBean(200,"success",userInfo);
-        return res;
+    @RequiresAuthentication
+    public R getUserInfo() {
+        UserDO userInfo = ShiroUtils.getUserInfo();
+        return R.ok().put("data",userInfo);
     }
 
     @GetMapping("/article")
-    public ResponseBean article() {
+    public R article() {
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
-            return new ResponseBean(200, "You are already logged in", null);
+            return R.ok("You are already logged in");
         } else {
-            return new ResponseBean(200, "You are guest", null);
+            return R.error("You are guest");
         }
     }
 
     @GetMapping("/require_auth")
     @RequiresAuthentication
-    public ResponseBean requireAuth() {
-        return new ResponseBean(200, "You are authenticated", null);
+    public R requireAuth() {
+        return R.ok("You are authenticated");
     }
 
     @GetMapping("/require_role")
     @RequiresRoles("admin")
-    public ResponseBean requireRole() {
-        return new ResponseBean(200, "You are visiting require_role", null);
+    public R requireRole() {
+        return R.ok("You are visiting require_role");
     }
 
     @GetMapping("/require_permission")
     @RequiresPermissions(logical = Logical.AND, value = {"view", "edit"})
-    public ResponseBean requirePermission() {
-        return new ResponseBean(200, "You are visiting permission require edit,view", null);
+    public R requirePermission() {
+        return R.ok("You are visiting permission require edit,view");
     }
 
     @PostMapping("/addMenu")
     @RequiresPermissions("sys:menu:add")
-    public ResponseBean addMenu() {
-        return new ResponseBean(200,"add menu success",null);
+    public R addMenu() {
+        return R.ok("add menu success");
     }
 
     @PostMapping("/addUser")
     @RequiresPermissions("sys:user:add")
-    public ResponseBean addUser() {
-        return new ResponseBean(200,"add user success",null);
+    public R addUser() {
+        return R.ok("add user success");
     }
 
     @RequestMapping(path = "/401")
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseBean unauthorized() {
-        return new ResponseBean(401, "Unauthorized", null);
+    public R unauthorized() {
+        return R.error("401","Unauthorized");
     }
 
     @GetMapping("/logout")
-    public ResponseBean logout(HttpServletRequest request) {
+    public R logout(HttpServletRequest request) {
         String token = request.getHeader(Constants.AUTHORIZATION);
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
@@ -134,8 +127,10 @@ public class WebController {
 //            subject.logout(); // session 会销毁，在SessionListener监听session销毁，清理权限缓存
             RedisUtil.del(token);
             LOGGER.info("退出登录成功！");
-            return new ResponseBean(200,"退出成功！",null);
+            return R.ok("退出成功");
         }
-        return new ResponseBean(401,"用户未登录！",null);
+        return R.error("用户未登录");
     }
+
+
 }
