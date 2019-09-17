@@ -14,8 +14,8 @@ public class ExceptionController {
     // 捕捉shiro的异常
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(ShiroException.class)
-    public ResponseBean handle401(ShiroException e) {
-        return new ResponseBean(401, e.getMessage(), null);
+    public ResponseBean handle402(ShiroException e) {
+        return new ResponseBean(402, e.getMessage(), null);
     }
 
     // 捕捉UnauthorizedException

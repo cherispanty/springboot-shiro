@@ -7,3 +7,6 @@ mybatis:
     map-underscore-to-camel-case: true
   mapper-locations: mybatis/**/*Mapper.xml
   typeAliasesPackage: org.inlighting.bean
+logging:
+  level:
+    org.inlighting: debug

@@ -15,6 +15,7 @@ import org.inlighting.service.UserService;
 import org.inlighting.util.Constants;
 import org.inlighting.util.JWTUtil;
 import org.inlighting.util.RedisUtil;
+import org.inlighting.util.ShiroUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ public class WebController {
     public void setService(UserService userService) {
         this.userService = userService;
     }
+
 
     @PostMapping("/login")
     public ResponseBean login(@RequestParam("username") String username,
@@ -59,6 +61,22 @@ public class WebController {
     @GetMapping("/test2")
     public ResponseBean test2(){
         return new ResponseBean(200,"you cann't attach me!",null);
+    }
+
+    /**
+     * 测试获取用户信息
+     * @return
+     */
+    @GetMapping("/getUserInfo")
+    public ResponseBean getUserInfo() {
+        UserDO userInfo = null;
+        try {
+            userInfo = ShiroUtils.getUserInfo();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ResponseBean res = new ResponseBean(200,"success",userInfo);
+        return res;
     }
 
     @GetMapping("/article")
