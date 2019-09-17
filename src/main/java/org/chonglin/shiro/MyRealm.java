@@ -50,10 +50,8 @@ public class MyRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         String username = JWTUtil.getUsername(principals.toString());
-//        UserBean user = userService.getUser(username);
         UserDO userDO = userService.getByUsername(username);
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-//        simpleAuthorizationInfo.addRole(user.getRole());
         List<RoleDO> roleDOList = userDO.getRoleDOList();
         List<String> roles = roleDOList.stream().map(RoleDO::getRoleSign).collect(Collectors.toList());
         Set<String> permission = new HashSet<>();
