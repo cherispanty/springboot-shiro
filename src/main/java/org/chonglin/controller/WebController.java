@@ -13,16 +13,13 @@ import org.chonglin.form.UserForm;
 import org.chonglin.service.UserService;
 import org.chonglin.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -32,23 +29,27 @@ public class WebController {
 
     @Autowired
     private UserService userService;
+    @Value("${salt.login_pwd}")
+    private String saltLoginPwd;
 
 
     @PostMapping("/login")
-    public R login(@RequestParam("username") String username,
+    public R login(@RequestParam(value = "username") String username,
                    @RequestParam("password") String password) {
-        //密码加密生成 todo
+        //密码加密生成
         UserDO userInfo = userService.getByUsername(username);
-        if (userInfo.getPassword().equals(password)) {
-            String token = JWTUtil.sign(username, password);
-            //将token存入redis，设置过期时间为1分钟
-            RedisUtil.set(token,userInfo,5 * 60);
-            Map<String,Object> data = new HashMap<>();
-            data.put("token",token);
-            return R.ok(data);
-        } else {
-            throw new UnauthorizedException();
+        String text = username + password;
+        String cPwd = MD5.md5(text, saltLoginPwd);
+        if(!userInfo.getPassword().equals(cPwd)) {
+            return R.error("用户名或密码错误");
         }
+        String token = JWTUtil.sign(username, cPwd);
+        //将token存入redis，设置过期时间为1分钟
+        RedisUtil.set(token,userInfo,5 * 60);
+        Map<String,Object> data = new HashMap<>();
+        data.put("token",token);
+        return R.ok(data);
+
     }
 
     @GetMapping("/test")
@@ -136,8 +137,17 @@ public class WebController {
     @RequiresAuthentication
     public R regist(@RequestBody @Valid UserForm userForm) {
         //检查用户是否存在
-
-        return R.ok();
+        Map<String,Object> map = new HashMap<>();
+        map.put("username",userForm.getUsername());
+        UserDO userDO = userService.queryByColumn(map);
+        if(userDO != null) {
+            return R.error("该用户名已注册");
+        }
+        Integer row = userService.addUser(userForm);
+        if(row != 1) {
+            return R.error("注册失败！");
+        }
+        return R.ok("注册成功！");
     }
 
 

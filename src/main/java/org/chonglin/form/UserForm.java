@@ -1,9 +1,11 @@
 package org.chonglin.form;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.Date;
 
 
 @Data
@@ -14,9 +16,6 @@ public class UserForm {
     private String password;
     @NotBlank(message = "校验码不能为空")
     private String code;
-    /**
-     * 如果是空，则不校验，如果不为空，则校验
-     */
-    @Pattern(regexp="^[0-9]{4}-[0-9]{2}-[0-9]{2}$",message="出生日期格式不正确")
-    private String birthday;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") //格式化前台日期参数注解
+    private Date birthday;
 }

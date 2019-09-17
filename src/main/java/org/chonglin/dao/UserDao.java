@@ -2,6 +2,9 @@ package org.chonglin.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.chonglin.bean.UserDO;
+import org.chonglin.entity.User;
+
+import java.util.Map;
 
 /**
  * 
@@ -12,4 +15,8 @@ import org.chonglin.bean.UserDO;
 @Mapper
 public interface UserDao {
     UserDO queryByUsername(String username);
+
+    UserDO queryByColumn(Map<String,Object> map);
+
+    Integer save(User user);
 }

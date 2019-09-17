@@ -10,3 +10,6 @@ mybatis:
 logging:
   level:
     org.inlighting: debug
+
+salt:
+  login_pwd: bc29710d3429524789abc15e06732834

@@ -55,6 +55,36 @@
         left join sys_role_menu srm on srm.role_id = sur.role_id
         left join sys_menu sm on srm.menu_id = sm.menu_id
         where su.username = #{username}
-
     </select>
+
+    <select id="queryByColumn" resultType="org.chonglin.bean.UserDO">
+        select * from sys_user
+        <where>
+            <if test="username != null and username != ''">
+                username = #{username}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="save" parameterType="org.chonglin.entity.User" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user
+        (
+            user_id,
+            username,
+            name,
+            password,
+            birth,
+            last_login_time
+        )
+        values
+        (
+            #{userId},
+            #{username},
+            #{name},
+            #{password},
+            #{birth},
+            #{lastLoginTime}
+        )
+    </insert>
 </mapper>
