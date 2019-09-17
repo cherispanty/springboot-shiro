@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.inlighting.dao.UserDao">
-    <resultMap id="UserResultMap" type="org.inlighting.bean.UserDO">
+<mapper namespace="org.chonglin.dao.UserDao">
+    <resultMap id="UserResultMap" type="org.chonglin.bean.UserDO">
         <id column="user_id" property="userId" />
         <result column="username" property="username" />
         <result column="name" property="name" />
@@ -24,7 +24,7 @@
         <result column="city" property="city"/>
         <result column="district" property="district"/>
 
-        <collection property="roleDOList" ofType="org.inlighting.bean.RoleDO">
+        <collection property="roleDOList" ofType="org.chonglin.bean.RoleDO">
             <id column="role_id" property="roleId"></id>
             <result column="role_name" property="roleName"></result>
             <result column="role_sign" property="roleSign"></result>
@@ -32,7 +32,7 @@
             <result column="user_id_create" property="userIdCreate"></result>
             <result column="gmt_create" property="gmtCreate"></result>
             <result column="gmt_modified" property="gmtModified"></result>
-            <collection property="menuDOList" ofType="org.inlighting.bean.MenuDO">
+            <collection property="menuDOList" ofType="org.chonglin.bean.MenuDO">
                 <id column="menu_id" property="menuId"></id>
                 <result column="parent_id" property="parentId"></result>
                 <result column="m_name" property="name"></result>

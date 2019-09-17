@@ -6,7 +6,7 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: mybatis/**/*Mapper.xml
-  typeAliasesPackage: org.inlighting.bean
+  typeAliasesPackage: org.chonglin.bean
 logging:
   level:
     org.inlighting: debug
